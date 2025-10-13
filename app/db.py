@@ -6,9 +6,19 @@ from urllib.parse import quote_plus
 import dotenv
 dotenv.load_dotenv()
 
+# Helper function to read password from secret file or env var
+def get_db_password():
+    # Try to read from Docker secret file first
+    password_file = os.getenv("DB_PASSWORD_FILE")
+    if password_file and os.path.exists(password_file):
+        with open(password_file, 'r') as f:
+            return f.read().strip()
+    # Fall back to environment variable
+    return os.getenv("DB_PASSWORD")
+
 # Get individual components
 db_user = os.getenv("DB_USER", "gasapp")
-db_password = os.getenv("DB_PASSWORD")
+db_password = get_db_password()
 db_host = os.getenv("DB_HOST", "localhost")
 db_port = os.getenv("DB_PORT", "5432")
 db_name = os.getenv("DB_NAME", "gas")
