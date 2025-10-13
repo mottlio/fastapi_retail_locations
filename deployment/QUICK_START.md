@@ -1,18 +1,21 @@
 # Quick Start - Deploy with Docker Secrets
 
-**TL;DR** - Secure deployment in 4 commands:
+**TL;DR** - Secure deployment in 5 commands:
 
 ```bash
-# 1. Initialize Swarm
+# 1. Build the app image first
+docker build -t gasapp:latest .
+
+# 2. Initialize Swarm
 docker swarm init
 
-# 2. Create secret (replace with your strong password)
+# 3. Create secret (replace with your strong password)
 echo "YOUR_SECURE_PASSWORD" | docker secret create db_password -
 
-# 3. Deploy
+# 4. Deploy
 docker stack deploy -c docker-compose.secrets.yml gasapp
 
-# 4. Verify
+# 5. Verify
 curl http://localhost:8000/health
 ```
 

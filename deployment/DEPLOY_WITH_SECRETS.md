@@ -43,13 +43,22 @@ docker secret ls
 openssl rand -base64 32
 ```
 
-## Step 3: Deploy with Docker Stack
+## Step 3: Build the Application Image
 
-Use `docker stack deploy` instead of `docker compose up`:
+Docker Stack doesn't build images, so build first:
 
 ```bash
 cd /path/to/fastapi-retail-locations
 
+# Build the application image
+docker build -t gasapp:latest .
+```
+
+## Step 4: Deploy with Docker Stack
+
+Use `docker stack deploy` instead of `docker compose up`:
+
+```bash
 # Deploy the stack
 docker stack deploy -c docker-compose.secrets.yml gasapp
 
@@ -58,7 +67,7 @@ docker stack services gasapp
 docker stack ps gasapp
 ```
 
-## Step 4: Verify Deployment
+## Step 5: Verify Deployment
 
 Check that containers are running:
 
