@@ -2,4 +2,10 @@
 name = "my-python-project"
 version = "0.1.0"
 requires-python = ">= 3.12.11"
-dependencies = []
+dependencies = [
+    "asyncpg>=0.30.0",
+    "dotenv>=0.9.9",
+    "fastapi>=0.119.0",
+    "sqlalchemy>=2.0.44",
+    "uvicorn>=0.37.0",
+]
