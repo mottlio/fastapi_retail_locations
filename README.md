@@ -48,7 +48,7 @@ This project includes Docker support for production deployment on a VM.
 1. **Clone the repository**:
    ```bash
    git clone <your-repo-url>
-   cd my-python-project
+   cd fastapi-retail-locations
    ```
 
 2. **Create `.env` file** from the template:

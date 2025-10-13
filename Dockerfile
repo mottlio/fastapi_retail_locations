@@ -7,8 +7,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv for faster dependency management
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-ENV PATH="/root/.cargo/bin:$PATH"
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
+    . $HOME/.local/bin/env 2>/dev/null || true
+ENV PATH="/root/.local/bin:$PATH"
 
 # Set working directory
 WORKDIR /app
