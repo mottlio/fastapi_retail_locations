@@ -11,4 +11,4 @@ echo "Update complete! Service status:"
 docker service ps gasapp_app --no-trunc | head -3
 echo ""
 echo "Verifying new code is running:"
-docker exec $(docker ps -q -f name=gasapp_app) head -5 /app/main.py
+docker exec $(docker ps -q -f name=gasapp_app) head -5 ./app/main.py
