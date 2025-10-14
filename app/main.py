@@ -2,12 +2,12 @@
 from fastapi import FastAPI, Query
 from .db import find_nearby, Session, text
 
-app = FastAPI(title="Acme Payments API",
-    description="""Simple REST API for payments.
+app = FastAPI(title="Fuel Retail Sites API",
+    description="""Simple API to geolocate retail fuel sites.
 
 **Notes**
 - Auth via Bearer token
-- Rate limit: 60 req/min
+- Rate limit: 6/min
 """,
     version="0.1.0",
     license_info={"name": "Apache 2.0", "url": "https://www.apache.org/licenses/LICENSE-2.0"},
