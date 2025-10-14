@@ -5,5 +5,5 @@ fuel-api.mottl.io {
         X-Content-Type-Options "nosniff"
         Referrer-Policy "no-referrer-when-downgrade"
     }
-    reverse_proxy api:8000
+    reverse_proxy http://gasapp_app:8000
 }
