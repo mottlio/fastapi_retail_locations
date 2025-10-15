@@ -21,7 +21,9 @@ const state = {
 // Configuration
 // ===========================
 
-const API_BASE_URL = 'http://localhost:8000'; // Change to your API URL
+// Use empty string for relative URLs (works both locally and in production)
+// When deployed, requests will go to the same domain as the UI
+const API_BASE_URL = '';
 const API_ENDPOINTS = {
     nearby: '/api/nearby'
 };
