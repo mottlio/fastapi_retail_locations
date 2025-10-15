@@ -1,5 +1,7 @@
 # app/main.py
 from fastapi import FastAPI, Query
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from .db import find_nearby, Session, text
 
 app = FastAPI(title="Fuel Retail Sites API",
@@ -27,6 +29,20 @@ app = FastAPI(title="Fuel Retail Sites API",
     # swagger_ui_favicon_url="https://your.cdn/favicon.ico",
     )
 
+# Configure CORS middleware to allow frontend access
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:8080",
+        "http://127.0.0.1:8080",
+        "https://fuel-api.mottl.io",
+        "http://fuel-api.mottl.io"
+    ],  # UI origins (local dev + production)
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allow all headers
+)
+
 @app.get("/api/nearby")
 async def nearby(lat: float = Query(...), lon: float = Query(...), km: float = 10, limit: int = 50):
     limit = min(max(limit, 1), 100)  # clamp
@@ -41,3 +57,7 @@ async def health():
         return {"status": "ok"}
     except Exception as e:
         return {"status": "db_error", "detail": str(e)}
+
+# Mount static files (MUST come after all route definitions)
+# This serves the UI from the /ui directory
+app.mount("/", StaticFiles(directory="ui", html=True), name="ui")

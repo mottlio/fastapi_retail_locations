@@ -1,0 +1,400 @@
+/* ===========================
+   Reset and Base Styles
+   =========================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #333;
+    overflow: hidden;
+}
+
+/* ===========================
+   Layout
+   =========================== */
+
+#app {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+}
+
+/* ===========================
+   Map Container
+   =========================== */
+
+#map {
+    flex: 1;
+    height: 100vh;
+    z-index: 1;
+}
+
+/* ===========================
+   Control Panel (Top-left overlay)
+   =========================== */
+
+.control-panel {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 220px;
+}
+
+.btn-geolocate {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.btn-geolocate:hover {
+    background: #0056b3;
+}
+
+.btn-geolocate:active {
+    background: #004085;
+}
+
+.btn-geolocate:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
+.btn-geolocate.loading {
+    background: #6c757d;
+    position: relative;
+}
+
+.btn-geolocate.loading .icon {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.4;
+    }
+}
+
+.btn-geolocate .icon {
+    font-size: 18px;
+}
+
+.radius-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.radius-selector label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+}
+
+.radius-dropdown {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.radius-dropdown:hover {
+    border-color: #007bff;
+}
+
+.radius-dropdown:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.radius-dropdown:disabled {
+    background: #f5f5f5;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.radius-dropdown.loading {
+    background: linear-gradient(90deg, #ffffff 0%, #f0f0f0 50%, #ffffff 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* ===========================
+   Results Panel (Right sidebar)
+   =========================== */
+
+.results-panel {
+    width: 400px;
+    height: 100vh;
+    background: white;
+    border-left: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.panel-header {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+}
+
+.panel-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #222;
+}
+
+.btn-close {
+    display: none;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    color: #666;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    line-height: 1;
+}
+
+.btn-close:hover {
+    color: #000;
+}
+
+.panel-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+/* ===========================
+   Welcome Message
+   =========================== */
+
+.welcome-message {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+
+.welcome-message p {
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+/* ===========================
+   Station List (for future phases)
+   =========================== */
+
+.station-list {
+    list-style: none;
+}
+
+.station-item {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.station-item:hover {
+    background: #f8f9fa;
+}
+
+.station-item:last-child {
+    border-bottom: none;
+}
+
+.station-name {
+    font-weight: 600;
+    font-size: 15px;
+    color: #222;
+    margin-bottom: 4px;
+}
+
+.station-brand {
+    font-size: 13px;
+    color: #007bff;
+    margin-bottom: 6px;
+}
+
+.station-address {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 6px;
+}
+
+.station-distance {
+    font-size: 12px;
+    color: #999;
+}
+
+/* ===========================
+   Loading Spinner (for future phases)
+   =========================== */
+
+.loading {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #007bff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ===========================
+   Error and Empty States (for future phases)
+   =========================== */
+
+.error-message,
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+
+.error-message {
+    color: #dc3545;
+}
+
+/* ===========================
+   Responsive Design - Tablet
+   =========================== */
+
+@media (max-width: 1024px) {
+    .results-panel {
+        width: 350px;
+    }
+}
+
+/* ===========================
+   Responsive Design - Mobile
+   =========================== */
+
+@media (max-width: 768px) {
+    #app {
+        flex-direction: column;
+    }
+
+    #map {
+        width: 100vw;
+        height: 100vh;
+    }
+
+    .results-panel {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: 50vh;
+        max-height: 70vh;
+        border-left: none;
+        border-top: 2px solid #007bff;
+        border-radius: 12px 12px 0 0;
+        transform: translateY(0);
+        transition: transform 0.3s ease;
+    }
+
+    .results-panel.hidden {
+        transform: translateY(calc(100% - 60px));
+    }
+
+    .btn-close {
+        display: block;
+    }
+
+    .control-panel {
+        top: 10px;
+        left: 10px;
+        min-width: 200px;
+        padding: 12px;
+    }
+
+    .btn-geolocate {
+        font-size: 13px;
+        padding: 8px 12px;
+    }
+
+    .radius-dropdown {
+        font-size: 13px;
+    }
+}
+
+/* ===========================
+   Accessibility
+   =========================== */
+
+button:focus,
+select:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Find nearby gas stations - Interactive map for locating retail fuel sites">
+    <title>Gas Station Finder</title>
+
+    <!-- Leaflet CSS from CDN -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin="anonymous" />
+
+    <!-- Application CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Control panel overlay -->
+        <div id="controls" class="control-panel">
+            <button id="geolocate-btn" class="btn-geolocate" title="Find My Location">
+                <span class="icon">📍</span>
+                <span class="text">Find My Location</span>
+            </button>
+
+            <div class="radius-selector">
+                <label for="radius-select">Search Radius:</label>
+                <select id="radius-select" class="radius-dropdown">
+                    <option value="5">5 km</option>
+                    <option value="10" selected>10 km</option>
+                    <option value="25">25 km</option>
+                    <option value="50">50 km</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Map container -->
+        <div id="map"></div>
+
+        <!-- Results panel -->
+        <aside id="results-panel" class="results-panel">
+            <header class="panel-header">
+                <h2>Nearby Gas Stations</h2>
+                <button id="close-panel" class="btn-close" aria-label="Close panel">✕</button>
+            </header>
+            <div id="results-content" class="panel-content">
+                <div class="welcome-message">
+                    <p>Click on the map or use "Find My Location" to search for nearby gas stations.</p>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Leaflet JS from CDN -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin="anonymous"></script>
+
+    <!-- Application JavaScript -->
+    <script src="js/app.js"></script>
+</body>
+</html>

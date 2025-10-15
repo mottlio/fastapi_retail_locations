@@ -42,6 +42,7 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 COPY --chown=appuser:appuser app/ ./app/
 COPY --chown=appuser:appuser alembic/ ./alembic/
 COPY --chown=appuser:appuser alembic.ini ./
+COPY --chown=appuser:appuser ui/ ./ui/
 
 # Switch to non-root user
 USER appuser

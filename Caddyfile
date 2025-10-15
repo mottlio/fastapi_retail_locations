@@ -1,9 +1,13 @@
 fuel-api.mottl.io {
     encode gzip zstd
+
     header {
         Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
         X-Content-Type-Options "nosniff"
         Referrer-Policy "no-referrer-when-downgrade"
     }
-    reverse_proxy http://gasapp_app:8000
+
+    # Proxy all requests to FastAPI
+    # FastAPI serves both the UI (static files) and API endpoints
+    reverse_proxy gasapp_app:8000
 }
