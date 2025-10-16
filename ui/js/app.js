@@ -28,6 +28,43 @@ const API_ENDPOINTS = {
     nearby: '/api/nearby'
 };
 
+// Brand logo configuration
+// Maps brand names (normalized) to their logo filenames
+const BRAND_LOGOS = {
+    'bp': 'bp.png',
+    'pieprzyk': 'pieprzyk.png',
+    'slovnaft': 'slovnaft.png',
+    'watis': 'watis.png',
+    'leclerc': 'leclerc.png',
+    'lotos': 'lotos.png',
+    'uniwar': 'uniwar.png',
+    'avia': 'avia.png',
+    'orlen': 'orlen.png',
+    'auchan': 'auchan.png',
+    'moya': 'moya.png',
+    'bliska': 'bliska.png',
+    'mol': 'mol.png',
+    'shell': 'shell.png',
+    'huzar': 'huzar.png',
+    'circle_k': 'circle_k.png',
+    'aral': 'aral.png',
+    'carrefour': 'carrefour.png',
+    'amic': 'amic.png',
+    'tesco': 'tesco.png',
+    // Brands without logos will use fallback
+    'oktan': null,
+    'wadex': null,
+    'intermarche': null,
+    'olkop': null,
+    'inna': null
+};
+
+// Fallback logo for generic stations
+const FALLBACK_LOGO = 'station_general.png';
+
+// Cache for Leaflet icon objects (performance optimization)
+const iconCache = {};
+
 // ===========================
 // API Functions
 // ===========================
@@ -168,6 +205,64 @@ function handleStationClick(station) {
 }
 
 // ===========================
+// Brand Icon Functions
+// ===========================
+
+/**
+ * Normalize brand name for logo lookup
+ * Handles case sensitivity and special characters
+ * @param {string} brand - Brand name from API
+ * @returns {string} Normalized brand name
+ */
+function normalizeBrandName(brand) {
+    if (!brand) return null;
+
+    // Convert to lowercase and trim
+    let normalized = brand.toLowerCase().trim();
+
+    // Handle special cases
+    // "Circle K" -> "circle_k"
+    normalized = normalized.replace(/\s+/g, '_');
+
+    return normalized;
+}
+
+/**
+ * Get the appropriate icon for a station based on its brand
+ * Uses cached icons for performance
+ * @param {string} brand - Brand name from API
+ * @returns {L.Icon} Leaflet icon object
+ */
+function getBrandIcon(brand) {
+    const normalizedBrand = normalizeBrandName(brand);
+
+    // Check if we already have this icon in cache
+    if (iconCache[normalizedBrand]) {
+        return iconCache[normalizedBrand];
+    }
+
+    // Determine which logo file to use
+    let logoFile = FALLBACK_LOGO;
+    if (normalizedBrand && BRAND_LOGOS[normalizedBrand]) {
+        logoFile = BRAND_LOGOS[normalizedBrand];
+    }
+
+    // Create Leaflet icon with brand logo
+    const icon = L.icon({
+        iconUrl: `brands_logos/${logoFile}`,
+        iconSize: [32, 37],        // Size of the icon (10% taller)
+        iconAnchor: [16, 35],      // Point that corresponds to marker location
+        popupAnchor: [0, -35],     // Point where popup opens relative to iconAnchor
+        className: 'brand-marker'   // CSS class for custom styling
+    });
+
+    // Cache the icon for future use
+    iconCache[normalizedBrand] = icon;
+
+    return icon;
+}
+
+// ===========================
 // Map Marker Functions
 // ===========================
 
@@ -220,18 +315,11 @@ function addClickMarker(lat, lon) {
  * @param {Array} stations - Array of station objects
  */
 function addStationMarkers(stations) {
-    // Red icon for stations
-    const redIcon = L.icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41]
-    });
-
     stations.forEach(station => {
-        const marker = L.marker([station.lat, station.lon], { icon: redIcon })
+        // Get brand-specific icon (or fallback)
+        const brandIcon = getBrandIcon(station.brand);
+
+        const marker = L.marker([station.lat, station.lon], { icon: brandIcon })
             .addTo(state.map)
             .bindPopup(`
                 <div style="min-width: 150px;">
@@ -271,18 +359,19 @@ function addStationMarkers(stations) {
  */
 function initMap() {
     // Create map instance centered on a default location
-    // Using center of continental US as default
-    const defaultCenter = [39.8283, -98.5795]; // Geographic center of USA
-    const defaultZoom = 5;
+    // Using Warsaw, Poland as default
+    const defaultCenter = [52.22936, 21.01293]; // Warsaw, Poland
+    const defaultZoom = 12;
 
     // Initialize map
     state.map = L.map('map').setView(defaultCenter, defaultZoom);
 
-    // Add OpenStreetMap tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    // Add CartoDB Voyager tile layer
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         maxZoom: 19,
-        minZoom: 3
+        minZoom: 3,
+        subdomains: 'abcd'
     }).addTo(state.map);
 
     console.log('Map initialized successfully');

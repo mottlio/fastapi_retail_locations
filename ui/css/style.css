@@ -378,6 +378,29 @@ body {
 }
 
 /* ===========================
+   Brand Markers
+   =========================== */
+
+/* Styling for brand-specific markers */
+.brand-marker {
+    /*border-radius: 4px; */
+    /*box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); */
+    transition: transform 0.2s ease; 
+}
+
+/* Hover effect for brand markers */
+.leaflet-marker-icon.brand-marker:hover {
+    transform: scale(1.1);
+    z-index: 1000 !important;
+}
+
+/* Ensure brand logos have proper rendering */
+.brand-marker img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* ===========================
    Accessibility
    =========================== */
 
