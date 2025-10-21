@@ -233,6 +233,263 @@ docker exec $(docker ps -q -f name=gasapp_db) \
 # Should show GIST index on geom column
 ```
 
+## Schema Migrations with Alembic
+
+This project uses **Alembic** for database schema versioning and migrations.
+
+### Prerequisites
+
+Ensure Alembic is installed in your project environment:
+
+```bash
+# On your development machine or VM
+uv add alembic  # If not already installed
+```
+
+### Check Current Migration Status
+
+```bash
+# View migration history
+uv run alembic history
+
+# Check current database version
+docker exec $(docker ps -q -f name=gasapp_db) \
+  psql -U gasapp -d gas -c "SELECT version_num FROM alembic_version"
+```
+
+### Running Migrations on VM
+
+#### Streamlined Approach (Recommended)
+
+The typical workflow for deploying a migration from your development machine to the VM:
+
+```bash
+# === On Your Development Machine ===
+
+# 1. Commit and push the migration
+git add alembic/versions/*.py pyproject.toml uv.lock
+git commit -m "Add service boolean columns to gas_stations table"
+git push
+
+# === On Your VM ===
+
+# 2. SSH into your VM
+ssh user@your-vm-ip
+
+# 3. Navigate to application directory and pull latest code
+cd /opt/fastapi-retail-locations
+git pull origin main
+
+# 4. Apply the migration
+uv run alembic upgrade head
+
+# 5. Verify the columns were added
+docker exec $(docker ps -q -f name=gasapp_db) \
+  psql -U gasapp -d gas -c "\d gas_stations"
+```
+
+**Important Notes:**
+- **No application restart needed** - Schema changes don't require restarting the FastAPI app
+- **Migrations are idempotent** - Safe to run multiple times; won't duplicate changes
+- **Backup first (optional but recommended)** - For production databases:
+  ```bash
+  docker exec $(docker ps -q -f name=gasapp_db) \
+    pg_dump -U gasapp -d gas -Fc > backup_before_migration.dump
+  ```
+
+#### Detailed Approach
+
+For more thorough verification:
+
+```bash
+# 1. SSH into your VM
+ssh user@your-vm-ip
+
+# 2. Navigate to application directory
+cd /opt/fastapi-retail-locations
+
+# 3. Pull latest code
+git pull origin main
+
+# 4. Check current migration status
+uv run alembic current
+
+# 5. View pending migrations
+uv run alembic history
+
+# 6. Apply migrations (upgrade to latest)
+uv run alembic upgrade head
+
+# 7. Verify the migration was applied
+docker exec $(docker ps -q -f name=gasapp_db) \
+  psql -U gasapp -d gas -c "SELECT version_num FROM alembic_version"
+
+# 8. Verify schema changes (example for gas_stations table)
+docker exec $(docker ps -q -f name=gasapp_db) \
+  psql -U gasapp -d gas -c "\d gas_stations"
+```
+
+### First-Time Alembic Setup on VM
+
+If deploying to a fresh database that was restored from a dump (without Alembic tracking):
+
+```bash
+# Initialize Alembic tracking at current migration state
+uv run alembic stamp head
+
+# Verify initialization
+docker exec $(docker ps -q -f name=gasapp_db) \
+  psql -U gasapp -d gas -c "SELECT version_num FROM alembic_version"
+```
+
+### Creating New Migrations (Development)
+
+On your development machine:
+
+```bash
+# 1. Create a new migration
+uv run alembic revision -m "description of changes"
+
+# 2. Edit the generated migration file in alembic/versions/
+# Add your schema changes to upgrade() and downgrade() functions
+
+# 3. Test the migration locally
+uv run alembic upgrade head
+
+# 4. Verify changes
+docker exec gasdb psql -U gasapp -d gas -c "\d your_table"
+
+# 5. Test rollback (optional)
+uv run alembic downgrade -1  # Go back one migration
+uv run alembic upgrade head   # Re-apply
+```
+
+### Migration Deployment Workflow
+
+Complete workflow from development to production:
+
+```bash
+# === On Development Machine ===
+
+# 1. Create and test migration
+uv run alembic revision -m "add service columns"
+# Edit migration file...
+uv run alembic upgrade head
+# Test your application...
+
+# 2. Commit to git
+git add alembic/versions/*.py
+git commit -m "Add migration: add service columns"
+git push
+
+# === On VM ===
+
+# 3. Pull latest code
+cd /opt/fastapi-retail-locations
+git pull origin main
+
+# 4. Rebuild application image (if needed)
+docker build -t gasapp:latest .
+
+# 5. Apply migration
+uv run alembic upgrade head
+
+# 6. Verify migration
+docker exec $(docker ps -q -f name=gasapp_db) \
+  psql -U gasapp -d gas -c "SELECT version_num FROM alembic_version"
+
+# 7. Redeploy application (if needed)
+docker stack deploy -c docker-compose.secrets.yml gasapp
+```
+
+### Rolling Back Migrations
+
+If you need to revert a migration:
+
+```bash
+# Downgrade by one migration
+uv run alembic downgrade -1
+
+# Downgrade to specific revision
+uv run alembic downgrade <revision_id>
+
+# View migration to downgrade to
+uv run alembic history
+```
+
+### Migration Best Practices
+
+1. **Always test migrations locally first** before applying to production
+2. **Backup database before migrations**: Create a dump before running migrations on VM
+3. **Use nullable columns**: For existing data, add columns as nullable initially
+4. **Review generated SQL**: Use `uv run alembic upgrade head --sql` to see SQL without executing
+5. **Keep migrations small**: One logical change per migration
+6. **Test rollbacks**: Ensure downgrade() functions work correctly
+
+### Common Migration Scenarios
+
+#### Adding a New Column
+
+```python
+# In alembic/versions/xxxxx_add_column.py
+def upgrade() -> None:
+    op.add_column('table_name', sa.Column('column_name', sa.Type(), nullable=True))
+
+def downgrade() -> None:
+    op.drop_column('table_name', 'column_name')
+```
+
+#### Adding an Index
+
+```python
+def upgrade() -> None:
+    op.create_index('idx_name', 'table_name', ['column_name'])
+
+def downgrade() -> None:
+    op.drop_index('idx_name', table_name='table_name')
+```
+
+#### Modifying a Column
+
+```python
+def upgrade() -> None:
+    op.alter_column('table_name', 'column_name',
+                    type_=sa.String(255),
+                    nullable=False)
+
+def downgrade() -> None:
+    op.alter_column('table_name', 'column_name',
+                    type_=sa.String(100),
+                    nullable=True)
+```
+
+### Migration Troubleshooting
+
+#### Error: "Can't locate revision identified by 'xxxxx'"
+
+The migration file isn't in the alembic/versions directory. Check that all migration files are committed and pulled.
+
+#### Error: "Target database is not up to date"
+
+```bash
+# Check current version
+uv run alembic current
+
+# Check what's available
+uv run alembic heads
+
+# Upgrade to latest
+uv run alembic upgrade head
+```
+
+#### Error: "relation alembic_version does not exist"
+
+Alembic hasn't been initialized. Run:
+
+```bash
+uv run alembic stamp head
+```
+
 ## Troubleshooting
 
 ### Error: "relation gas_stations does not exist"
