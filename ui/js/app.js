@@ -167,7 +167,10 @@ function displayResults(stations, radius) {
     const stationItems = stations.map((station, index) => `
         <div class="station-item" data-station-id="${station.id}" data-index="${index}">
             <div class="station-name">${station.name || 'Unknown Station'}</div>
-            <div class="station-brand">${station.brand || 'N/A'}</div>
+            <div class="station-brand-row">
+                <span class="station-brand">${station.brand || 'N/A'}</span>
+                ${renderServiceIcons(station)}
+            </div>
             <div class="station-address">${station.address || 'Address not available'}</div>
             <div class="station-distance">${station.distance_km.toFixed(2)} km away</div>
         </div>
@@ -202,6 +205,27 @@ function handleStationClick(station) {
     if (marker) {
         marker.openPopup();
     }
+}
+
+// ===========================
+// Service Icons Functions
+// ===========================
+
+/**
+ * Render service icons based on available services
+ * @param {Object} station - Station object with service properties
+ * @returns {string} HTML string with service icons or empty string
+ */
+function renderServiceIcons(station) {
+    const icons = [];
+    if (station.service_carwash) icons.push('✨🚘🚿');
+    if (station.service_food) icons.push('🍔');
+    if (station.service_coffee) icons.push('☕');
+    if (station.service_shop) icons.push('🛒');
+
+    if (icons.length === 0) return '';
+
+    return `<div class="service-icons">${icons.join(' ')}</div>`;
 }
 
 // ===========================
@@ -325,6 +349,7 @@ function addStationMarkers(stations) {
                 <div style="min-width: 150px;">
                     <strong>${station.name}</strong><br>
                     <em>${station.brand}</em><br>
+                    ${renderServiceIcons(station)}
                     <small>${station.address}</small><br>
                     <strong>${station.distance_km.toFixed(2)} km away</strong>
                 </div>

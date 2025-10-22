@@ -31,6 +31,7 @@ Session = async_sessionmaker(engine, expire_on_commit=False)
 
 NEARBY_SQL = text("""
 SELECT id, name, brand, address, lat, lon,
+       service_carwash, service_food, service_coffee, service_shop,
        ST_Distance(geom, ST_MakePoint(:lon, :lat)::geography)/1000 AS distance_km
 FROM gas_stations
 WHERE ST_DWithin(geom, ST_MakePoint(:lon, :lat)::geography, :km*1000)
