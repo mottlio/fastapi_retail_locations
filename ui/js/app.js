@@ -167,12 +167,13 @@ function displayResults(stations, radius) {
     const stationItems = stations.map((station, index) => `
         <div class="station-item" data-station-id="${station.id}" data-index="${index}">
             <div class="station-name">${station.name || 'Unknown Station'}</div>
+            <div class="station-distance">${station.distance_km.toFixed(2)} km away</div>
             <div class="station-brand-row">
                 <span class="station-brand">${station.brand || 'N/A'}</span>
                 ${renderServiceIcons(station)}
             </div>
             <div class="station-address">${station.address || 'Address not available'}</div>
-            <div class="station-distance">${station.distance_km.toFixed(2)} km away</div>
+            ${renderOpeningHours(station)}
         </div>
     `).join('');
 
@@ -226,6 +227,17 @@ function renderServiceIcons(station) {
     if (icons.length === 0) return '';
 
     return `<div class="service-icons">${icons.join(' ')}</div>`;
+}
+
+/**
+ * Render opening hours if available
+ * @param {Object} station - Station object
+ * @returns {string} HTML string with opening hours or empty string
+ */
+function renderOpeningHours(station) {
+    if (!station.opening_hours_display) return '';
+
+    return `<div class="station-hours">${station.opening_hours_display}</div>`;
 }
 
 // ===========================
@@ -348,10 +360,11 @@ function addStationMarkers(stations) {
             .bindPopup(`
                 <div style="min-width: 150px;">
                     <strong>${station.name}</strong><br>
+                    <small style="font-size: 12px; color: #999;">${station.distance_km.toFixed(2)} km away</small><br>
                     <em>${station.brand}</em><br>
                     ${renderServiceIcons(station)}
                     <small>${station.address}</small><br>
-                    <strong>${station.distance_km.toFixed(2)} km away</strong>
+                    ${renderOpeningHours(station)}
                 </div>
             `);
 
